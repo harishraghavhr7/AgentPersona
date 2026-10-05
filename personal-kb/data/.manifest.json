@@ -1,0 +1,147 @@
+{
+  "dcd1878cf21d99fb": {
+    "document_id": "dcd1878cf21d99fb",
+    "source": "data\\notes\\database_decision.md",
+    "content_hash": "c23cb1caddb0d38fde528d9ab7b5daddda59879959b0c89b1233addc92afe581",
+    "version": 2,
+    "status": "active",
+    "chunk_ids": [
+      "7192c46e-9641-565b-8c84-4c0679ac708e",
+      "94a13336-ea09-5473-bb9b-3eb47e7cedfe",
+      "b83a1450-a122-57dc-bb7e-d720dd009ee5"
+    ],
+    "last_ingested_at": "2026-10-05T09:11:25.495118+00:00"
+  },
+  "8f14004e9c9f5b43": {
+    "document_id": "8f14004e9c9f5b43",
+    "source": "data\\notes\\rag_project.md",
+    "content_hash": "1ebf0689fdc92b5114442243f5929bce6c1b64ef9ec336eb2662724e961db7ec",
+    "version": 2,
+    "status": "active",
+    "chunk_ids": [
+      "26033227-1907-5fcc-a566-d684b68a3a3c"
+    ],
+    "last_ingested_at": "2026-10-05T09:11:28.435716+00:00"
+  },
+  "edb6c512068d44d3": {
+    "document_id": "edb6c512068d44d3",
+    "source": "data\\notes\\accomplishments.md",
+    "content_hash": "1a21e5b8181e73202fb4381df439ab7c1280f73327d9ad655b8c968acce3d071",
+    "version": 11,
+    "status": "active",
+    "chunk_ids": [
+      "39f652a0-244c-5863-93f8-cccae71cd018",
+      "94b0a4a4-db04-5d41-99be-7a86815d541f",
+      "dfa61f99-07f8-5315-802a-974b50d63102",
+      "ee12a1ca-8896-537a-bb3f-448a071d8453",
+      "d82fbb47-8def-5a9a-a6a7-0aaa8f2074ba",
+      "083b438c-1767-52b3-9fae-4c02dd8f4d76",
+      "68b39537-e794-510d-8eec-1addd01aaa2a",
+      "7290c710-9a3f-5efe-bd35-8288a154e833"
+    ],
+    "last_ingested_at": "2026-10-05T10:14:13.967265+00:00"
+  },
+  "53cdcd56070f6660": {
+    "document_id": "53cdcd56070f6660",
+    "source": "data\\notes\\project_rules.md",
+    "content_hash": "8fb7d3eae7a1a047e189a352c5830c5a025a3c91f7eac86f89f4bd5bb8077556",
+    "version": 5,
+    "status": "active",
+    "chunk_ids": [
+      "14a2a130-64a1-5ad4-82bd-403c286ae1ba",
+      "f64d4462-8de9-5491-b0ab-0cb7c064a67a",
+      "3d7db997-6353-57c5-8186-96d8edaf268a",
+      "5cb75144-0d90-54f5-94f6-06c7da647bb8",
+      "034afbf7-531e-5878-9d60-de9a0cd06bd8",
+      "b0398727-ab38-5592-ac20-c8780f515306",
+      "71c6d9f9-fec2-5809-91e8-bd8156c90a51"
+    ],
+    "last_ingested_at": "2026-10-05T10:14:27.209005+00:00"
+  },
+  "cbf443bb869285d6": {
+    "document_id": "cbf443bb869285d6",
+    "source": "data\\notes\\test_attached_rules.md",
+    "content_hash": "526ab7e28769721da6364f7bfafc867163a70d4d3ef5b2e317491cacde840998",
+    "version": 1,
+    "status": "active",
+    "chunk_ids": [
+      "e5a14a6f-777f-5b8f-99c5-d3b9795d23f7"
+    ],
+    "last_ingested_at": "2026-10-05T10:14:30.353682+00:00"
+  },
+  "2de7267fad500b55": {
+    "document_id": "2de7267fad500b55",
+    "source": "data\\notes\\test_project_arch.txt",
+    "content_hash": "498f904aa5bba10c7c507bf1394587425af8214333ff7cfb8ef900d8f3124850",
+    "version": 1,
+    "status": "active",
+    "chunk_ids": [
+      "242d201f-85aa-5a19-99e8-01dbdb0b872c"
+    ],
+    "last_ingested_at": "2026-10-05T10:14:33.486134+00:00"
+  },
+  "ed1696d3acf82cbb": {
+    "document_id": "ed1696d3acf82cbb",
+    "source": "data\\notes\\attachedrules.doc",
+    "content_hash": "87139037a620a6fafbcef78937779f09278df8c6c078eaa050e77a3875624001",
+    "version": 1,
+    "status": "active",
+    "chunk_ids": [
+      "d2499ac9-aa04-5249-ad53-a39ff39923cc"
+    ],
+    "last_ingested_at": "2026-10-05T09:11:19.157200+00:00"
+  },
+  "0a9c2df75be89a63": {
+    "document_id": "0a9c2df75be89a63",
+    "source": "data\\notes\\attachedrules.docx",
+    "content_hash": "0d5ab7908c3159f057540bec8ec94d4499bf3fcc3413b444fdc2628e759f2f80",
+    "version": 1,
+    "status": "active",
+    "chunk_ids": [
+      "ca6a97b0-7f71-59e4-9954-ef618e9e7a8e"
+    ],
+    "last_ingested_at": "2026-10-05T09:11:22.277224+00:00"
+  },
+  "d0c2233e3b3d28d3": {
+    "document_id": "d0c2233e3b3d28d3",
+    "source": "data\\notes\\upcoming_projects.md",
+    "content_hash": "1324988bd5ba636c7461352689079cb326150aa25d96baafd864fc83c7b4eab2",
+    "version": 1,
+    "status": "active",
+    "chunk_ids": [
+      "85c36dea-7f16-52d2-a7ef-8b0804b21e20",
+      "54a7fd53-be8d-5c1f-9306-45688d457582",
+      "01fe13e7-24e7-5cfa-8eb5-e66ef39db97d",
+      "09237e01-ad4b-5966-9b40-d8459be7807f"
+    ],
+    "last_ingested_at": "2026-10-05T09:11:31.632647+00:00"
+  },
+  "f3d7792cdfc8bea0": {
+    "document_id": "f3d7792cdfc8bea0",
+    "source": "data\\notes\\daily_tasks.md",
+    "content_hash": "c7e8e8858a8b8f545af01b050e136815381e6b2836f80f90e46a4f7f2b6c7d55",
+    "version": 4,
+    "status": "active",
+    "chunk_ids": [
+      "84aff68b-8197-5669-a256-187e3d5aa36b",
+      "8871ff23-948d-5336-aee0-e02ffe3afbec",
+      "d13737d1-958b-5aa2-b409-aae415bcdcb7",
+      "27e09050-1e68-5b32-bdb7-24227ebdfad3",
+      "34e942d0-db6c-5992-b12c-1a18d32fd292"
+    ],
+    "last_ingested_at": "2026-10-05T10:20:40.693112+00:00"
+  },
+  "02c8a066a2c1dfec": {
+    "document_id": "02c8a066a2c1dfec",
+    "source": "data\\notes\\chat_notes.md",
+    "content_hash": "2932a32add254ef4cc489c56b7a3ef460057ddffa3396392fd75eb4b509d88b5",
+    "version": 2,
+    "status": "active",
+    "chunk_ids": [
+      "3015a92e-857b-50a5-96d3-f0befc4dd5c3",
+      "e0d4258b-cdc1-5382-9ccc-830a9998180e",
+      "412bdb24-b4a8-5014-9100-717c227496ea"
+    ],
+    "last_ingested_at": "2026-10-05T10:36:10.348766+00:00"
+  }
+}

@@ -1,0 +1,1 @@
+Upcoming Project Architecture: Event-driven architecture with Kafka.

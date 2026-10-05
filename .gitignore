@@ -1,0 +1,36 @@
+# Environments
+.venv/
+**/.venv/
+env/
+venv/
+
+# Environment Variables & Secrets (CRITICAL: Never commit API keys)
+.env
+*.env
+**/.env
+
+# Python Cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Pytest & Testing
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Vector & Database Storage
+qdrant_storage/
+**/qdrant_storage/
+*.sqlite
+*.lock
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
