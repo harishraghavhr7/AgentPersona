@@ -192,12 +192,14 @@ def query_knowledge_base(payload: QueryApiRequest):
             )
 
         # Standard RAG Query
+        logger.info(f"Processing query: '{payload.query}' (top_k={payload.top_k})")
         service = GenerationService()
         response = service.generate_answer(
             query=payload.query,
             top_k=payload.top_k,
             debug=payload.debug,
         )
+        logger.info(f"Query answered successfully. Citations: {len(response.citations)}, Answer length: {len(response.answer)}")
         return QueryApiResponse(
             answer=response.answer,
             citations=response.citations,

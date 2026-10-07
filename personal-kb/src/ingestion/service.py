@@ -67,6 +67,25 @@ class IngestionService:
 
         status = "NEW" if force_reindex else self.manifest.check_status(doc_id, content_hash)
         if status == "UNCHANGED":
+            # Reconcile: verify that the document's active points actually exist in Qdrant
+            try:
+                active_pts = self.client.count(
+                    collection_name=self.collection_name,
+                    count_filter=Filter(
+                        must=[
+                            FieldCondition(key="document_id", match=MatchValue(value=doc_id)),
+                            FieldCondition(key="status", match=MatchValue(value="active")),
+                        ]
+                    ),
+                    exact=True,
+                ).count
+                if active_pts == 0:
+                    logger.info(f"Document '{rel_source}' is in manifest but missing from Qdrant. Re-indexing...")
+                    status = "NEW"
+            except Exception as e:
+                logger.debug(f"Could not verify Qdrant point count for {rel_source}: {e}")
+
+        if status == "UNCHANGED":
             logger.debug(f"Document unchanged, skipping: {rel_source}")
             existing_meta = self.manifest.state.get(doc_id, {})
             return {

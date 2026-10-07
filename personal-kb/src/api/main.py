@@ -40,6 +40,20 @@ async def lifespan(app: FastAPI):
         ensure_collection_and_indexes(client, settings.qdrant_collection)
         print(f"[STARTUP] Successfully verified Qdrant collection '{settings.qdrant_collection}' and payload indexes.", flush=True)
         logger.info(f"Verified Qdrant collection '{settings.qdrant_collection}' and temporal payload indexes.")
+
+        # Reconcile & auto-sync knowledge base files into Qdrant
+        try:
+            from ingestion.service import IngestionService
+            ingest_svc = IngestionService()
+            summary = ingest_svc.ingest_directory()
+            if summary["added"] > 0 or summary["modified"] > 0:
+                print(f"[STARTUP] Synchronized knowledge base files into Qdrant: Added: {summary['added']}, Modified: {summary['modified']}, Processed: {summary['processed']}", flush=True)
+                logger.info(f"Auto-synchronized knowledge base into Qdrant: {summary}")
+            else:
+                print(f"[STARTUP] Knowledge base is up to date in Qdrant ({summary['processed']} document(s) verified).", flush=True)
+        except Exception as sync_err:
+            print(f"[STARTUP NOTICE] Notice during document sync check: {sync_err}", flush=True)
+            logger.warning(f"Document sync notice during application startup: {sync_err}")
     except Exception as e:
         detail = ""
         if hasattr(e, "content") and e.content:
