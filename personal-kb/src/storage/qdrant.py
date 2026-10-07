@@ -33,14 +33,15 @@ def _is_qdrant_server_reachable(url: str, timeout: float = 0.5) -> bool:
 def get_qdrant_client(url: Optional[str] = None) -> QdrantClient:
     """
     Returns an initialized QdrantClient.
-    If the target server URL is not reachable (e.g., Docker is not running),
-    it automatically falls back to the embedded local disk storage at 'qdrant_storage/'.
+    Supports Qdrant Cloud (with API Key), remote Docker Qdrant, and local embedded disk fallback.
     """
     global _client_instance, _client_target
     settings = get_settings()
     target_url = url or settings.qdrant_url
+    api_key = settings.qdrant_api_key
+    target_key = f"{target_url}:{bool(api_key)}"
 
-    if _client_instance is not None and _client_target == target_url:
+    if _client_instance is not None and _client_target == target_key:
         return _client_instance
 
     local_path = str(settings.data_dir.parent / "qdrant_storage")
@@ -49,24 +50,31 @@ def get_qdrant_client(url: Optional[str] = None) -> QdrantClient:
     if target_url.lower() in ("local", "embedded", ""):
         logger.info(f"Using embedded local Qdrant database at: {local_path}")
         _client_instance = QdrantClient(path=local_path)
-        _client_target = target_url
+        _client_target = target_key
         return _client_instance
 
-    # 2. Check if remote Qdrant server is active
+    # 2. Qdrant Cloud (HTTPS or explicit API key)
+    if api_key or target_url.startswith("https://") or "qdrant.io" in target_url:
+        logger.info(f"Connecting to Qdrant Cloud at: {target_url}")
+        _client_instance = QdrantClient(url=target_url, api_key=api_key)
+        _client_target = target_key
+        return _client_instance
+
+    # 3. Check if local/remote Qdrant server is active
     if _is_qdrant_server_reachable(target_url):
         logger.info(f"Connected to Qdrant server at: {target_url}")
-        _client_instance = QdrantClient(url=target_url)
-        _client_target = target_url
+        _client_instance = QdrantClient(url=target_url, api_key=api_key)
+        _client_target = target_key
         return _client_instance
 
-    # 3. Graceful fallback to local disk storage
+    # 4. Graceful fallback to local disk storage
     logger.warning(
         f"Qdrant server at '{target_url}' is not running/reachable. "
         f"Falling back to embedded local disk storage at '{local_path}'. "
         f"(Start Docker and run 'docker compose up -d' if you prefer the server container.)"
     )
     _client_instance = QdrantClient(path=local_path)
-    _client_target = target_url
+    _client_target = target_key
     return _client_instance
 
 

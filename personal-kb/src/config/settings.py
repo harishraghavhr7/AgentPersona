@@ -62,13 +62,19 @@ class Settings(BaseModel):
     llm_model: str = Field(
         default_factory=lambda: os.getenv("LLM_MODEL", "llama3.2")
     )
+    embedding_provider: str = Field(
+        default_factory=lambda: os.getenv("EMBEDDING_PROVIDER", "ollama").lower()
+    )
     embedding_model: str = Field(
         default_factory=lambda: os.getenv("EMBEDDING_MODEL", "embeddinggemma")
     )
 
-    # Qdrant
+    # Qdrant (Supports local container or Qdrant Cloud https://...cloud.qdrant.io)
     qdrant_url: str = Field(
         default_factory=lambda: os.getenv("QDRANT_URL", "http://localhost:6333")
+    )
+    qdrant_api_key: Optional[str] = Field(
+        default_factory=lambda: os.getenv("QDRANT_API_KEY")
     )
     qdrant_collection: str = Field(
         default_factory=lambda: os.getenv("QDRANT_COLLECTION", "personal_knowledge")

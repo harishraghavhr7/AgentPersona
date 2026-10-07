@@ -8,7 +8,7 @@ services:
       - "6333:6333"
       - "6334:6334"
     volumes:
-      - ./qdrant_storage:/qdrant/storage
+      - ./personal-kb/qdrant_storage:/qdrant/storage
     networks:
       - kb-network
     healthcheck:
@@ -21,7 +21,7 @@ services:
   # 2. Personal Knowledge Base Application & Web UI
   app:
     build:
-      context: .
+      context: ./personal-kb
       dockerfile: Dockerfile
     container_name: personal-kb-app
     restart: unless-stopped
@@ -34,10 +34,10 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
-      - .env
+      - ./personal-kb/.env
     volumes:
-      - ./data:/app/data
-      - ./qdrant_storage:/app/qdrant_storage
+      - ./personal-kb/data:/app/data
+      - ./personal-kb/qdrant_storage:/app/qdrant_storage
     depends_on:
       qdrant:
         condition: service_healthy

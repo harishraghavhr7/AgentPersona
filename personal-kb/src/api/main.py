@@ -1,14 +1,40 @@
+from contextlib import asynccontextmanager
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from api.routes import health_router, ingest_router, query_router, documents_router
 from api.ui import HTML_UI
+from config.settings import get_settings
+from storage.qdrant import get_qdrant_client, ensure_collection_and_indexes
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan context manager:
+    Initializes Qdrant connection and verifies temporal payload indexes on startup.
+    """
+    settings = get_settings()
+    logger.info("Starting Personal Knowledge Base API...")
+    try:
+        client = get_qdrant_client()
+        ensure_collection_and_indexes(client, settings.qdrant_collection)
+        logger.info(f"Verified Qdrant collection '{settings.qdrant_collection}' and temporal payload indexes.")
+    except Exception as e:
+        logger.warning(f"Qdrant initialization notice on startup: {e}")
+    yield
+    logger.info("Shutting down Personal Knowledge Base API...")
+
 
 app = FastAPI(
     title="Personal Knowledge Base with Temporal Memory",
     description="Local-first grounded RAG system with temporal indexing, versioning, supersession, and provenance.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Enable CORS for local UI and tools

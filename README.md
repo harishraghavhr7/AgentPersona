@@ -264,4 +264,51 @@ Run the complete test suite with `pytest`:
 ```bash
 pytest tests
 ```
-All 16 unit, integration, API, and end-to-end RAG tests pass successfully.
+All unit, integration, API, and end-to-end RAG tests pass successfully.
+
+---
+
+## 🐳 Docker Deployment & CI/CD Pipeline
+
+### Production Deployment
+Launch the full multi-container stack (Qdrant + FastAPI Web App):
+```bash
+# From repository root or personal-kb/
+docker compose up -d --build
+```
+- Web UI & REST API: **http://localhost:8000**
+- Qdrant Vector DB: **http://localhost:6333**
+- Auto-restart: `unless-stopped` with persistent data volumes (`./data` and `./qdrant_storage`).
+
+### Development with Live Hot-Reload
+When continuously developing features without rebuilding container images:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+```
+Any changes made inside `src/` will instantly trigger Uvicorn hot-reload inside the container.
+
+### Developer CLI Scripts
+Quick shortcuts for local testing and container management:
+```powershell
+# Windows PowerShell
+.\dev.ps1 test      # Run fast temporal & grounding unit tests
+.\dev.ps1 lint      # Run Ruff code quality check
+.\dev.ps1 dev       # Start Docker stack with live hot-reloading
+.\dev.ps1 up        # Start production Docker Compose stack
+.\dev.ps1 down      # Stop running containers
+.\dev.ps1 logs      # Follow application logs
+```
+```bash
+# Linux / macOS / WSL
+./dev.sh test
+./dev.sh dev
+./dev.sh up
+./dev.sh down
+```
+
+### GitHub Actions CI/CD (`.github/workflows/ci.yml`)
+Automated on every push and pull request:
+1. **Linting**: Code quality enforcement via `ruff`.
+2. **Temporal & Grounding Tests**: Verifies chunking, deduplication, date extraction, and fallback cascading.
+3. **Container Delivery**: Verifies Docker compilation and automatically publishes release containers to **GitHub Container Registry (`ghcr.io`)** on merge to `main` or semantic release tags (`v*`).
+

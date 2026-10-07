@@ -1,0 +1,17 @@
+__pycache__/
+**__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.env
+*.env
+qdrant_storage/
+**/qdrant_storage/
+.git/
+.github/
+.idea/
+.vscode/

@@ -26,7 +26,6 @@ def ingest_command():
 
 def chat_command():
     gen_service = GenerationService()
-    settings = get_settings()
 
     print("\n" + "=" * 60)
     print("Personal Knowledge Base with Temporal Memory (CLI Chat)")
