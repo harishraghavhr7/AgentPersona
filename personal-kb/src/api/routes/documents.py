@@ -54,9 +54,11 @@ def get_document_history(document_id: str):
 
     settings = get_settings()
     client = get_qdrant_client()
+    raw_coll = settings.qdrant_collection
+    coll_name = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
 
     points, _ = client.scroll(
-        collection_name=settings.qdrant_collection,
+        collection_name=coll_name,
         scroll_filter=Filter(must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]),
         limit=100,
         with_payload=True,

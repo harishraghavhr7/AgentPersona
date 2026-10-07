@@ -72,16 +72,19 @@ class Settings(BaseModel):
     # Qdrant (Supports local container or Qdrant Cloud https://...cloud.qdrant.io)
     qdrant_url: str = Field(
         default_factory=lambda: (
-            os.getenv("QDRANT_URL", "http://localhost:6333").strip().strip('"').strip("'").rstrip("/")
+            (os.getenv("QDRANT_URL") or "").strip().strip('"').strip("'").rstrip("/")
+            or "http://localhost:6333"
         )
     )
     qdrant_api_key: Optional[str] = Field(
         default_factory=lambda: (
-            os.getenv("QDRANT_API_KEY", "").strip().strip('"').strip("'") or None
+            (os.getenv("QDRANT_API_KEY") or "").strip().strip('"').strip("'") or None
         )
     )
     qdrant_collection: str = Field(
-        default_factory=lambda: os.getenv("QDRANT_COLLECTION", "personal_knowledge").strip().strip('"').strip("'")
+        default_factory=lambda: (
+            (os.getenv("QDRANT_COLLECTION") or "").strip().strip('"').strip("'") or "personal_knowledge"
+        )
     )
 
     # Data / Ingestion

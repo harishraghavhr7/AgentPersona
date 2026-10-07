@@ -9,6 +9,10 @@ from api.ui import HTML_UI
 from config.settings import get_settings
 from storage.qdrant import get_qdrant_client, ensure_collection_and_indexes
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -19,10 +23,22 @@ async def lifespan(app: FastAPI):
     Initializes Qdrant connection and verifies temporal payload indexes on startup.
     """
     settings = get_settings()
-    logger.info("Starting Personal Knowledge Base API...")
+    print("=" * 60, flush=True)
+    print("[STARTUP] Personal Knowledge Base API starting up...", flush=True)
+    print(f"[STARTUP] Qdrant URL: {settings.qdrant_url}", flush=True)
+    print(f"[STARTUP] Qdrant Collection: {settings.qdrant_collection}", flush=True)
+    print(f"[STARTUP] Qdrant API Key configured: {bool(settings.qdrant_api_key)}", flush=True)
+    print(f"[STARTUP] LLM Fallback chain: {' -> '.join(settings.llm_fallback_order)}", flush=True)
+    print(f"[STARTUP] Groq configured: {bool(settings.groq_api_key)}", flush=True)
+    print(f"[STARTUP] Gemini configured: {bool(settings.gemini_api_key)}", flush=True)
+    print(f"[STARTUP] OpenRouter configured: {bool(settings.openrouter_api_key)}", flush=True)
+    print(f"[STARTUP] Embedding Provider: {settings.embedding_provider} / {settings.embedding_model}", flush=True)
+    print("=" * 60, flush=True)
+
     try:
         client = get_qdrant_client()
         ensure_collection_and_indexes(client, settings.qdrant_collection)
+        print(f"[STARTUP] Successfully verified Qdrant collection '{settings.qdrant_collection}' and payload indexes.", flush=True)
         logger.info(f"Verified Qdrant collection '{settings.qdrant_collection}' and temporal payload indexes.")
     except Exception as e:
         detail = ""
@@ -31,9 +47,10 @@ async def lifespan(app: FastAPI):
                 detail = f" - Details: {e.content.decode('utf-8', errors='ignore')}"
             except Exception:
                 detail = f" - Details: {e.content}"
+        print(f"[STARTUP NOTICE] Qdrant initialization issue: {e}{detail}", flush=True)
         logger.warning(f"Qdrant initialization notice on startup: {e}{detail}")
     yield
-    logger.info("Shutting down Personal Knowledge Base API...")
+    print("[SHUTDOWN] Personal Knowledge Base API shutting down...", flush=True)
 
 
 app = FastAPI(

@@ -13,9 +13,10 @@ def health_check():
     
     # Check Qdrant
     qdrant_status = "unknown"
+    coll_name = (settings.qdrant_collection or "").strip().strip('"').strip("'") or "personal_knowledge"
     try:
         client = get_qdrant_client()
-        info = client.get_collection(settings.qdrant_collection)
+        info = client.get_collection(coll_name)
         qdrant_status = "healthy" if info.status else "unhealthy"
     except Exception as e:
         qdrant_status = f"unhealthy ({e})"
@@ -30,20 +31,22 @@ def health_check():
     except Exception as e:
         ollama_status = f"unhealthy ({e})"
 
-    overall = "healthy" if ("healthy" in qdrant_status and "healthy" in ollama_status) else "degraded"
-
     # Status of fallback providers
     providers_configured = {
         "groq": bool(settings.groq_api_key and settings.groq_api_key.strip()),
         "gemini": bool(settings.gemini_api_key and settings.gemini_api_key.strip()),
         "openrouter": bool(settings.openrouter_api_key and settings.openrouter_api_key.strip()),
     }
+    has_cloud_llm = any(providers_configured.values())
+
+    # Overall is healthy if Qdrant is healthy and (Ollama is healthy or Cloud LLM is configured)
+    overall = "healthy" if ("healthy" in qdrant_status and ("healthy" in ollama_status or has_cloud_llm)) else "degraded"
 
     return HealthResponse(
         status=overall,
         qdrant_status=qdrant_status,
         ollama_status=ollama_status,
-        collection=settings.qdrant_collection,
+        collection=coll_name,
         active_models={
             "llm_fallback_order": " -> ".join(settings.llm_fallback_order),
             "groq": settings.groq_model,

@@ -11,6 +11,17 @@ from storage.qdrant import get_vector_store
 logger = logging.getLogger(__name__)
 
 
+import urllib.request
+
+
+def _is_ollama_reachable(base_url: str, timeout: float = 0.5) -> bool:
+    try:
+        with urllib.request.urlopen(base_url.rstrip("/") + "/api/tags", timeout=timeout) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
 def get_embedding_model() -> Any:
     """
     Returns configured embedding model based on settings.embedding_provider:
@@ -38,6 +49,15 @@ def get_embedding_model() -> Any:
             return OpenAIEmbedding(model_name=model_name)
         except Exception as e:
             logger.warning(f"Could not load OpenAI embedding ({e}). Falling back to Ollama.")
+
+    # In cloud environments where Ollama is not running, gracefully fallback to FastEmbed
+    if not _is_ollama_reachable(settings.ollama_base_url):
+        try:
+            from llama_index.embeddings.fastembed import FastEmbedEmbedding
+            logger.info("Ollama is not reachable. Automatically using serverless CPU FastEmbed embeddings (BAAI/bge-base-en-v1.5).")
+            return FastEmbedEmbedding(model_name="BAAI/bge-base-en-v1.5")
+        except Exception as e:
+            logger.warning(f"Could not initialize FastEmbed auto-fallback ({e}). Proceeding to Ollama.")
 
     # Default to Ollama
     return OllamaEmbedding(

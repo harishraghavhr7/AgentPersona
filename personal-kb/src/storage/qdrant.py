@@ -37,7 +37,8 @@ def get_qdrant_client(url: Optional[str] = None) -> QdrantClient:
     """
     global _client_instance, _client_target
     settings = get_settings()
-    target_url = url or settings.qdrant_url
+    raw_url = url or settings.qdrant_url
+    target_url = (raw_url or "").strip().strip('"').strip("'").rstrip("/") or "http://localhost:6333"
     api_key = settings.qdrant_api_key
     target_key = f"{target_url}:{bool(api_key)}"
 
@@ -46,9 +47,14 @@ def get_qdrant_client(url: Optional[str] = None) -> QdrantClient:
 
     local_path = str(settings.data_dir.parent / "qdrant_storage")
 
-    # Auto-enforce https:// for Qdrant Cloud endpoints
-    if "qdrant.io" in target_url and target_url.startswith("http://"):
-        target_url = "https://" + target_url[len("http://"):]
+    # Auto-enforce https:// and clean ports for Qdrant Cloud endpoints
+    if "qdrant.io" in target_url:
+        if not target_url.startswith(("http://", "https://")):
+            target_url = "https://" + target_url
+        elif target_url.startswith("http://"):
+            target_url = "https://" + target_url[len("http://"):]
+        if target_url.endswith(":6333"):
+            target_url = target_url[:-5]
 
     # 1. Explicit local / embedded configuration
     if target_url.lower() in ("local", "embedded", ""):
@@ -92,7 +98,8 @@ def ensure_collection_and_indexes(
     """
     settings = get_settings()
     target_client = client or get_qdrant_client()
-    target_coll = collection_name or settings.qdrant_collection
+    raw_coll = collection_name or settings.qdrant_collection
+    target_coll = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
 
     try:
         # 1. Ensure collection exists
@@ -135,7 +142,7 @@ def ensure_collection_and_indexes(
                 detail = f" (Server response: {e.content.decode('utf-8', errors='ignore')})"
             except Exception:
                 detail = f" (Server response: {e.content})"
-        logger.error(f"Error during Qdrant collection/index setup: {e}{detail}")
+        logger.error(f"Error during Qdrant collection/index setup on '{target_coll}': {e}{detail}")
         raise
 
 
@@ -145,7 +152,8 @@ def get_vector_store(
 ) -> QdrantVectorStore:
     settings = get_settings()
     target_client = client or get_qdrant_client()
-    target_coll = collection_name or settings.qdrant_collection
+    raw_coll = collection_name or settings.qdrant_collection
+    target_coll = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
 
     ensure_collection_and_indexes(target_client, target_coll)
 

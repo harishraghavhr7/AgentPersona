@@ -27,7 +27,9 @@ class IngestionService:
         self.settings = get_settings()
         self.client = get_qdrant_client()
         self.manifest = ManifestManager()
-        ensure_collection_and_indexes(self.client, self.settings.qdrant_collection)
+        raw_coll = self.settings.qdrant_collection
+        self.collection_name = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
+        ensure_collection_and_indexes(self.client, self.collection_name)
 
     def ingest_file(
         self,
@@ -87,7 +89,7 @@ class IngestionService:
             # Update prior chunks in Qdrant to superseded
             try:
                 self.client.set_payload(
-                    collection_name=self.settings.qdrant_collection,
+                    collection_name=self.collection_name,
                     payload={"status": "superseded", "valid_until": now_rfc},
                     points=Filter(
                         must=[
@@ -245,7 +247,7 @@ class IngestionService:
             logger.info(f"Document deleted from storage: {d_id}. Archiving in Qdrant.")
             try:
                 self.client.set_payload(
-                    collection_name=self.settings.qdrant_collection,
+                    collection_name=self.collection_name,
                     payload={"status": "archived"},
                     points=Filter(must=[FieldCondition(key="document_id", match=MatchValue(value=d_id))]),
                     wait=True,

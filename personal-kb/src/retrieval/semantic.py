@@ -18,7 +18,8 @@ class SemanticRetriever:
     def __init__(self, client: Optional[QdrantClient] = None, collection_name: Optional[str] = None):
         self.settings = get_settings()
         self.client = client or get_qdrant_client()
-        self.collection_name = collection_name or self.settings.qdrant_collection
+        raw_coll = collection_name or self.settings.qdrant_collection
+        self.collection_name = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
         self.embed_model = get_embedding_model()
         ensure_collection_and_indexes(self.client, self.collection_name)
 
