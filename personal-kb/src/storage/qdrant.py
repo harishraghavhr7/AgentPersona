@@ -46,6 +46,10 @@ def get_qdrant_client(url: Optional[str] = None) -> QdrantClient:
 
     local_path = str(settings.data_dir.parent / "qdrant_storage")
 
+    # Auto-enforce https:// for Qdrant Cloud endpoints
+    if "qdrant.io" in target_url and target_url.startswith("http://"):
+        target_url = "https://" + target_url[len("http://"):]
+
     # 1. Explicit local / embedded configuration
     if target_url.lower() in ("local", "embedded", ""):
         logger.info(f"Using embedded local Qdrant database at: {local_path}")
@@ -90,39 +94,49 @@ def ensure_collection_and_indexes(
     target_client = client or get_qdrant_client()
     target_coll = collection_name or settings.qdrant_collection
 
-    # 1. Ensure collection exists
-    collections_res = target_client.get_collections()
-    existing_collections = [c.name for c in collections_res.collections]
+    try:
+        # 1. Ensure collection exists
+        collections_res = target_client.get_collections()
+        existing_collections = [c.name for c in collections_res.collections]
 
-    if target_coll not in existing_collections:
-        logger.info(f"Creating Qdrant collection: {target_coll}")
-        target_client.create_collection(
-            collection_name=target_coll,
-            vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
-        )
+        if target_coll not in existing_collections:
+            logger.info(f"Creating Qdrant collection: {target_coll}")
+            target_client.create_collection(
+                collection_name=target_coll,
+                vectors_config=VectorParams(size=vector_size, distance=Distance.COSINE),
+            )
 
-    # 2. Inspect existing indexes and create missing ones
-    collection_info = target_client.get_collection(target_coll)
-    existing_schema = collection_info.payload_schema or {}
+        # 2. Inspect existing indexes and create missing ones
+        collection_info = target_client.get_collection(target_coll)
+        existing_schema = collection_info.payload_schema or {}
 
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore", message=".*Payload indexes have no effect in the local Qdrant.*"
-        )
-        for field_name, schema_type in PAYLOAD_INDEXES.items():
-            if field_name not in existing_schema:
-                try:
-                    logger.info(
-                        f"Creating payload index for '{field_name}' ({schema_type}) in '{target_coll}'"
-                    )
-                    target_client.create_payload_index(
-                        collection_name=target_coll,
-                        field_name=field_name,
-                        field_schema=schema_type,
-                        wait=True,
-                    )
-                except Exception as e:
-                    logger.debug(f"Could not create payload index for '{field_name}': {e}")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore", message=".*Payload indexes have no effect in the local Qdrant.*"
+            )
+            for field_name, schema_type in PAYLOAD_INDEXES.items():
+                if field_name not in existing_schema:
+                    try:
+                        logger.info(
+                            f"Creating payload index for '{field_name}' ({schema_type}) in '{target_coll}'"
+                        )
+                        target_client.create_payload_index(
+                            collection_name=target_coll,
+                            field_name=field_name,
+                            field_schema=schema_type,
+                            wait=True,
+                        )
+                    except Exception as e:
+                        logger.debug(f"Could not create payload index for '{field_name}': {e}")
+    except Exception as e:
+        detail = ""
+        if hasattr(e, "content") and e.content:
+            try:
+                detail = f" (Server response: {e.content.decode('utf-8', errors='ignore')})"
+            except Exception:
+                detail = f" (Server response: {e.content})"
+        logger.error(f"Error during Qdrant collection/index setup: {e}{detail}")
+        raise
 
 
 def get_vector_store(

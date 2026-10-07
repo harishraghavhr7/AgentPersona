@@ -25,7 +25,13 @@ async def lifespan(app: FastAPI):
         ensure_collection_and_indexes(client, settings.qdrant_collection)
         logger.info(f"Verified Qdrant collection '{settings.qdrant_collection}' and temporal payload indexes.")
     except Exception as e:
-        logger.warning(f"Qdrant initialization notice on startup: {e}")
+        detail = ""
+        if hasattr(e, "content") and e.content:
+            try:
+                detail = f" - Details: {e.content.decode('utf-8', errors='ignore')}"
+            except Exception:
+                detail = f" - Details: {e.content}"
+        logger.warning(f"Qdrant initialization notice on startup: {e}{detail}")
     yield
     logger.info("Shutting down Personal Knowledge Base API...")
 
