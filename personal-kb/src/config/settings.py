@@ -1,4 +1,5 @@
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional
@@ -7,6 +8,15 @@ from pydantic import BaseModel, Field
 
 # Load .env if present
 load_dotenv()
+
+VALID_COLLECTION_REGEX = re.compile(r"^[a-zA-Z0-9_.-]+$")
+
+
+def sanitize_collection_name(name: Optional[str]) -> str:
+    raw = (name or "").strip().strip('"').strip("'")
+    if not raw or not VALID_COLLECTION_REGEX.match(raw):
+        return "personal_knowledge"
+    return raw
 
 
 class Settings(BaseModel):
@@ -82,9 +92,7 @@ class Settings(BaseModel):
         )
     )
     qdrant_collection: str = Field(
-        default_factory=lambda: (
-            (os.getenv("QDRANT_COLLECTION") or "").strip().strip('"').strip("'") or "personal_knowledge"
-        )
+        default_factory=lambda: sanitize_collection_name(os.getenv("QDRANT_COLLECTION"))
     )
 
     # Data / Ingestion

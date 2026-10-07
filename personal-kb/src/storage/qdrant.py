@@ -7,7 +7,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
 from llama_index.vector_stores.qdrant import QdrantVectorStore
 
-from config.settings import get_settings
+from config.settings import get_settings, sanitize_collection_name
 from .indexes import PAYLOAD_INDEXES
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def ensure_collection_and_indexes(
     settings = get_settings()
     target_client = client or get_qdrant_client()
     raw_coll = collection_name or settings.qdrant_collection
-    target_coll = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
+    target_coll = sanitize_collection_name(raw_coll)
 
     try:
         # 1. Ensure collection exists
@@ -153,7 +153,7 @@ def get_vector_store(
     settings = get_settings()
     target_client = client or get_qdrant_client()
     raw_coll = collection_name or settings.qdrant_collection
-    target_coll = (raw_coll or "").strip().strip('"').strip("'") or "personal_knowledge"
+    target_coll = sanitize_collection_name(raw_coll)
 
     ensure_collection_and_indexes(target_client, target_coll)
 
