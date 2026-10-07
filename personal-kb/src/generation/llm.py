@@ -10,6 +10,7 @@ from llama_index.core.base.llms.types import (
     CompletionResponseAsyncGen,
     CompletionResponseGen,
     LLMMetadata,
+    MessageRole,
 )
 from llama_index.core.llms.custom import CustomLLM
 from llama_index.core.llms.llm import LLM
@@ -246,6 +247,26 @@ class FallbackLLM(CustomLLM):
         return "fallback_llm"
 
 
+class OpenAICompatibleLLM(OpenAI):
+    """
+    OpenAI-compatible LLM client for non-OpenAI endpoints (Groq, Gemini, OpenRouter).
+    Overrides the .metadata property to bypass LlamaIndex's strict validation
+    against OpenAI's proprietary model registry (which causes ValueError: Unknown model...).
+    """
+    context_window_size: int = 128000
+
+    @property
+    def metadata(self) -> LLMMetadata:
+        return LLMMetadata(
+            context_window=self.context_window_size,
+            num_output=self.max_tokens or 4096,
+            is_chat_model=True,
+            is_function_calling_model=True,
+            model_name=self.model,
+            system_role=MessageRole.SYSTEM,
+        )
+
+
 def create_groq_llm(
     model: Optional[str] = None,
     api_key: Optional[str] = None,
@@ -259,7 +280,7 @@ def create_groq_llm(
     if not key or not key.strip():
         return MissingKeyLLM(provider_name="groq", env_var_name="GROQ_API_KEY")
 
-    return OpenAI(
+    return OpenAICompatibleLLM(
         model=model or settings.groq_model,
         api_key=key.strip(),
         api_base=base_url or settings.groq_base_url,
@@ -281,7 +302,7 @@ def create_gemini_llm(
     if not key or not key.strip():
         return MissingKeyLLM(provider_name="gemini", env_var_name="GEMINI_API_KEY")
 
-    return OpenAI(
+    return OpenAICompatibleLLM(
         model=model or settings.gemini_model,
         api_key=key.strip(),
         api_base=base_url or settings.gemini_base_url,
@@ -303,7 +324,7 @@ def create_openrouter_llm(
     if not key or not key.strip():
         return MissingKeyLLM(provider_name="openrouter", env_var_name="OPENROUTER_API_KEY")
 
-    return OpenAI(
+    return OpenAICompatibleLLM(
         model=model or settings.openrouter_model,
         api_key=key.strip(),
         api_base=base_url or settings.openrouter_base_url,
