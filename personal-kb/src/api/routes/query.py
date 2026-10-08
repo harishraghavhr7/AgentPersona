@@ -6,7 +6,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException
 from api.schemas import QueryApiRequest, QueryApiResponse
 from generation.answer import GenerationService
-from ingestion.service import IngestionService
+from ingestion.service import IngestionService, generate_contextual_title_and_filename
 from models.query import Citation, QueryType
 
 logger = logging.getLogger(__name__)
@@ -121,10 +121,11 @@ def extract_chat_ingestion_payload(query: str) -> Optional[dict]:
 
     if m:
         content = m.group(1).strip()
+        title, filename = generate_contextual_title_and_filename(content)
         return {
             "text": content,
-            "title": "Chat Note",
-            "filename": "chat_notes.md",
+            "title": title,
+            "filename": filename,
             "category": "notes",
             "append": True,
         }

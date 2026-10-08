@@ -114,7 +114,7 @@ def test_chat_directive_ingest_note(client):
     data = response.json()
     assert data["metadata"].get("ingested") is True
     assert len(data["citations"]) >= 1
-    assert "chat_notes.md" in data["citations"][0]["source"]
+    assert "security_audit_scheduled_october_15.md" in data["citations"][0]["source"]
     assert "Knowledge Recorded & Indexed" in data["answer"]
 
 

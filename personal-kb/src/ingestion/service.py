@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 
 from config.settings import get_settings
@@ -15,6 +15,55 @@ from .deduplication import ManifestManager
 from .pipeline import run_node_ingestion
 
 logger = logging.getLogger(__name__)
+
+
+def generate_contextual_title_and_filename(text: str) -> Tuple[str, str]:
+    """
+    Generate a concise title and a clean markdown filename based on the chat note context.
+    Eliminates hardcoded chat_notes.md in favor of context-driven filenames.
+    """
+    import re
+    cleaned = text.strip()
+    if not cleaned:
+        return "Chat Note", "chat_note.md"
+
+    # 1. Check for explicit header line (e.g. "# Title" or "Title: ...")
+    lines = [line.strip() for line in cleaned.splitlines() if line.strip()]
+    first_line = lines[0] if lines else cleaned
+
+    m_header = re.match(r"^(?:#+\s*|(?:title|subject|topic)\s*[:\-]\s*)(.+)$", first_line, re.IGNORECASE)
+    if m_header:
+        raw_title = m_header.group(1).strip()
+    else:
+        # Strip common leading filler phrases
+        raw_title = re.sub(
+            r"^(?:remember(?:\s+that|\s+to)?|note(?:\s+that|\s+to\s+self)?|quick\s+note|new\s+note|take\s+note|save\s+note|store\s+note|add\s+note|please\s+note)\s*[:\-]?\s*",
+            "",
+            first_line,
+            flags=re.IGNORECASE,
+        ).strip()
+
+    # Split into words and remove common stop words for clean slug/title
+    words = [w for w in re.split(r"[^\w]+", raw_title) if w]
+    stop_words = {
+        "a", "an", "the", "that", "this", "to", "is", "are", "for", "in", "on", "of", "and",
+        "we", "my", "our", "it", "with", "be", "by", "as", "at", "from", "was", "were", "should", "must"
+    }
+
+    meaningful_words = [w for w in words if w.lower() not in stop_words]
+
+    if meaningful_words:
+        chosen_words = meaningful_words[:6]
+    elif words:
+        chosen_words = words[:6]
+    else:
+        chosen_words = ["chat", "note"]
+
+    clean_title = " ".join(chosen_words).strip().title()
+    slug_parts = [w.lower() for w in chosen_words]
+    filename = f"{'_'.join(slug_parts)}.md"
+
+    return clean_title, filename
 
 
 class IngestionService:
@@ -197,8 +246,9 @@ class IngestionService:
             elif any(k in lower for k in ["task", "todo", "today list", "daily list"]):
                 fname = "daily_tasks.md"
             else:
-                now_str = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-                fname = f"note_{now_str}.md"
+                derived_title, fname = generate_contextual_title_and_filename(text)
+                if not title:
+                    title = derived_title
 
         file_path = target_dir / fname
         date_str = event_at or datetime.now(timezone.utc).strftime("%Y-%m-%d")

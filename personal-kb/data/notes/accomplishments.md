@@ -34,3 +34,13 @@ Completed the RAG pipeline with Groq, Gemini and OpenRouter fallback chain.
 ## Current Accomplishments - 2026-10-05
 
 Built automated multi-format ingestion for docx, doc, pdf and markdown.
+
+
+## My Accomplishments - 2026-10-08
+
+Completed the RAG pipeline with Groq, Gemini and OpenRouter fallback chain.
+
+
+## Current Accomplishments - 2026-10-08
+
+Built automated multi-format ingestion for docx, doc, pdf and markdown.

@@ -649,7 +649,8 @@ HTML_UI = """<!DOCTYPE html>
     }
 
     async function submitModalNote() {
-      const filename = document.getElementById("modal-note-type").value;
+      const rawType = document.getElementById("modal-note-type").value;
+      const filename = rawType === "auto" ? undefined : rawType;
       let title = document.getElementById("modal-note-title").value.trim();
       let content = document.getElementById("modal-note-content").value.trim();
       if (!content) return;
@@ -667,13 +668,13 @@ HTML_UI = """<!DOCTYPE html>
 
       const userMsg = document.createElement("div");
       userMsg.className = "message user";
-      userMsg.innerHTML = `<div class="bubble">📝 Save Note: <strong>${title || filename}</strong><br><pre style="margin-top:6px; font-size:12px; background:transparent; white-space:pre-wrap;">${content}</pre></div>`;
+      userMsg.innerHTML = `<div class="bubble">📝 Save Note: <strong>${title || (filename || 'Context Note')}</strong><br><pre style="margin-top:6px; font-size:12px; background:transparent; white-space:pre-wrap;">${content}</pre></div>`;
       container.appendChild(userMsg);
 
       const asstMsg = document.createElement("div");
       asstMsg.className = "message assistant";
       asstMsg.id = msgId;
-      asstMsg.innerHTML = `<div class="bubble" style="color:var(--muted);">Indexing note into <code>${filename}</code> and Qdrant...</div>`;
+      asstMsg.innerHTML = `<div class="bubble" style="color:var(--muted);">Indexing note into knowledge base...</div>`;
       container.appendChild(asstMsg);
       container.scrollTop = container.scrollHeight;
 
@@ -729,8 +730,8 @@ HTML_UI = """<!DOCTYPE html>
       <div style="margin-bottom:12px;">
         <label style="font-size:12px; color:var(--muted); display:block; margin-bottom:4px;">Document Type</label>
         <select id="modal-note-type" style="width:100%; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:6px; font-size:13px;" onchange="updateNoteTypePrompt()">
+          <option value="auto">Auto-generated from context (topic_name.md)</option>
           <option value="daily_tasks.md">Today's Tasks / Todo List (daily_tasks.md)</option>
-          <option value="chat_notes.md">Chat Note / Memorization (chat_notes.md)</option>
           <option value="accomplishments.md">Engineering Accomplishment (accomplishments.md)</option>
           <option value="project_rules.md">Project Rule / Decision (project_rules.md)</option>
         </select>
